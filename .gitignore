@@ -1,0 +1,33 @@
+# ---------- Python / Backend ----------
+__pycache__/
+*.py[cod]
+*.pyc
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# Environment variables (NEVER commit secrets)
+.env
+.env.*
+!.env.example
+
+# ---------- Node / Frontend ----------
+node_modules/
+frontend/build/
+frontend/dist/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---------- Database ----------
+*.sqlite3
+*.db
+
+# ---------- OS / Editor junk ----------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
