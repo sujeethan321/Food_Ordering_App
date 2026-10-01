@@ -17,7 +17,7 @@ class Order(Base):
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     total_amount = Column(Numeric(10, 2), nullable=False)
-    status = Column(Enum(OrderStatusEnum), default=OrderStatusEnum.pending, index=True)
+    status = Column(String(30), default="Pending", index=True)
     created_at = Column(TIMESTAMP, server_default=func.now())
 
     customer = relationship("User")
