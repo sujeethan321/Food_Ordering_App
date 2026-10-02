@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
@@ -15,24 +15,26 @@ function Navbar() {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { itemCount } = useCart();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const handleLogout = () => {
     logout();
     navigate("/");
   };
 
-  if (isAdmin) return null; // admin uses the sidebar layout instead
+  // Admin pages provide their own sidebar; public pages still need navigation.
+  if (isAdmin && (pathname === "/admin" || pathname.startsWith("/admin/"))) return null;
 
   return (
-    <nav className="bg-cream px-6 py-5 flex justify-between items-center max-w-7xl mx-auto">
+    <nav aria-label="Main navigation" className="bg-cream px-6 py-5 flex flex-wrap gap-4 justify-between items-center max-w-7xl mx-auto">
       <Link to="/" className="flex items-center gap-2 text-tomato">
-        <ChefHatIcon />
         <span className="font-display font-semibold text-xl text-charcoal">Food Ordering</span>
       </Link>
 
-      <div className="hidden md:flex items-center gap-8 text-sm font-medium text-charcoal/70">
+      <div className="flex order-last w-full md:order-none md:w-auto items-center gap-8 text-sm font-medium text-charcoal/70">
         <Link to="/" className="hover:text-tomato">Home</Link>
         <Link to="/menu" className="hover:text-tomato">Menu</Link>
+        {isAdmin && <Link to="/admin" className="hover:text-tomato">Dashboard</Link>}
         {isAuthenticated && <Link to="/my-orders" className="hover:text-tomato">My Orders</Link>}
       </div>
 

@@ -38,9 +38,9 @@ function Home() {
 
         <div className="relative bg-cream-dark rounded-[2.5rem] aspect-square flex items-center justify-center text-[10rem] overflow-hidden">
           🍕
-          <span className="absolute top-8 left-10 text-2xl rotate-[-12deg]">🍅</span>
-          <span className="absolute bottom-10 right-10 text-2xl rotate-[10deg]">🌿</span>
-          <span className="absolute top-12 right-14 text-xl rotate-[8deg]">🌶️</span>
+          <span className="absolute top-8 left-10 text-2xl -rotate-12">🍅</span>
+          <span className="absolute bottom-10 right-10 text-2xl rotate-10">🌿</span>
+          <span className="absolute top-12 right-14 text-xl rotate-8">🌶️</span>
         </div>
       </section>
 

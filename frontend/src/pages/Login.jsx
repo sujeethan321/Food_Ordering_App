@@ -13,8 +13,8 @@ function Login() {
     e.preventDefault();
     setError("");
     try {
-      await login(email, password);
-      navigate("/");
+      const user = await login(email, password);
+      navigate(user.role === "admin" ? "/admin" : "/");
     } catch (err) {
       setError(err.response?.data?.detail || "Invalid email or password");
     }

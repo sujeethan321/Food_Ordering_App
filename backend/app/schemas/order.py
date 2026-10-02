@@ -38,6 +38,16 @@ class OrderItemResponse(BaseModel):
 class OrderResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    @field_validator("status", mode="before")
+    @classmethod
+    def normalize_status(cls, value):
+        # Older records may contain lowercase status values.
+        if isinstance(value, str):
+            for status in OrderStatusEnum:
+                if value.strip().casefold() == status.value.casefold():
+                    return status.value
+        return value
+
     id: int
     customer_id: int
     total_amount: Decimal

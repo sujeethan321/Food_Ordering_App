@@ -25,16 +25,38 @@ function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [recent, setRecent] = useState([]);
   const [popular, setPopular] = useState([]);
+  const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    axiosClient.get("/admin/stats").then((res) => setStats(res.data));
-    axiosClient.get("/orders/").then((res) => setRecent(res.data.slice(0, 5)));
-    axiosClient.get("/admin/popular-foods?limit=4").then((res) => setPopular(res.data));
-  }, []);
+    let active = true;
+    Promise.all([
+      axiosClient.get("/admin/stats"),
+      axiosClient.get("/orders/"),
+      axiosClient.get("/admin/popular-foods?limit=4"),
+    ]).then(([statsResponse, ordersResponse, popularResponse]) => {
+      if (!active) return;
+      setStats(statsResponse.data);
+      setRecent(ordersResponse.data.slice(0, 5));
+      setPopular(popularResponse.data);
+    }).catch((err) => {
+      if (!active) return;
+      const status = err.response?.status;
+      setError(status === 401 ? "Your session expired. Please log in again."
+        : status === 403 ? "An admin account is required to view the dashboard."
+        : "Could not load the dashboard. Check that the backend is running and try again.");
+    });
+    return () => { active = false; };
+  }, [attempt]);
 
   return (
     <AdminLayout title="Dashboard" subtitle="Manage your restaurant, foods, orders and customers.">
-      {!stats ? <p className="text-charcoal/40">Loading...</p> : (
+      {error ? (
+        <div role="alert" className="bg-white rounded-2xl p-5">
+          <p className="text-tomato-dark">{error}</p>
+          <button onClick={() => { setError(""); setAttempt((value) => value + 1); }} className="mt-3 bg-tomato text-white px-4 py-2 rounded-full">Retry</button>
+        </div>
+      ) : !stats ? <p className="text-charcoal/40">Loading...</p> : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <StatCard icon="🍴" iconBg="bg-basil/15" label="Foods" value={stats.total_foods} />

@@ -119,7 +119,7 @@ def update_order_status(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-        order.status = update.status.value
+    order.status = update.status.value
     db.commit()
     db.refresh(order)
     return _build_order_response(order)

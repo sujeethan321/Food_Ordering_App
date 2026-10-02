@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 
 @theme {
   --color-cream: #FBF3E7;
@@ -41,4 +41,79 @@ h1, h2, h3, h4, .font-display {
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
   outline: 2px solid var(--color-tomato);
   outline-offset: 2px;
+}
+
+/* Keep native keyboard behavior while styling supported select menus. */
+@supports (appearance: base-select) {
+  .order-status-select,
+  .order-status-select::picker(select) {
+    appearance: base-select;
+  }
+
+  .order-status-select::picker-icon {
+    display: none;
+  }
+
+  .order-status-select::picker(select) {
+    border: 0;
+    border-radius: 1rem;
+    padding: 0.5rem;
+    margin-block: 0.5rem;
+    min-width: 13rem;
+    background: white;
+    box-shadow: 0 12px 36px rgb(43 36 32 / 16%);
+    opacity: 0;
+    transform: translateY(-0.25rem);
+    transition: opacity 180ms ease-out, transform 180ms ease-out,
+      display 180ms allow-discrete, overlay 180ms allow-discrete;
+  }
+
+  .order-status-select:open::picker(select) {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @starting-style {
+    .order-status-select:open::picker(select) {
+      opacity: 0;
+      transform: translateY(-0.25rem);
+    }
+  }
+
+  .order-status-select option {
+    border: 0;
+    border-radius: 0.65rem;
+    padding: 0.7rem 0.85rem;
+    margin-block: 0.15rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms ease-out, color 150ms ease-out;
+  }
+
+  .order-status-select option:hover,
+  .order-status-select option:focus-visible {
+    background: var(--color-cream);
+    color: var(--color-tomato-dark);
+  }
+
+  .order-status-select option:checked {
+    background: var(--color-cream-dark);
+    color: var(--color-tomato-dark);
+    font-weight: 600;
+  }
+
+  .order-status-select option::checkmark {
+    order: 1;
+    margin-left: auto;
+    color: var(--color-tomato);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-status-select::picker(select),
+  .order-status-select option {
+    transition: none;
+    transform: none;
+  }
 }
