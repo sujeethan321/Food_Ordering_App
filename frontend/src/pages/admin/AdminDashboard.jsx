@@ -1,62 +1,85 @@
 import { useState, useEffect } from "react";
 import axiosClient from "../../api/axiosClient";
+import AdminLayout from "../../components/AdminLayout";
 
-function StatCard({ label, value, color = "text-gray-800" }) {
+const statusStyles = {
+  Pending: "bg-blush/40 text-tomato-dark",
+  Confirmed: "bg-ocean/15 text-ocean",
+  Preparing: "bg-amber/20 text-amber",
+  "Out for Delivery": "bg-ocean/15 text-ocean",
+  Delivered: "bg-basil/15 text-basil-dark",
+  Cancelled: "bg-charcoal/10 text-charcoal/50",
+};
+
+function StatCard({ icon, iconBg, label, value }) {
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className={`text-3xl font-bold mt-1 ${color}`}>{value}</p>
+    <div className="bg-white rounded-2xl p-5">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3 ${iconBg}`}>{icon}</div>
+      <p className="text-charcoal/50 text-sm">{label}</p>
+      <p className="font-display text-2xl font-semibold mt-0.5">{value}</p>
     </div>
   );
 }
 
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
-  const [popularFoods, setPopularFoods] = useState([]);
-  const [error, setError] = useState("");
+  const [recent, setRecent] = useState([]);
+  const [popular, setPopular] = useState([]);
 
   useEffect(() => {
-    axiosClient.get("/admin/stats").then((res) => setStats(res.data)).catch(() => setError("Failed to load stats"));
-    axiosClient.get("/admin/popular-foods?limit=5").then((res) => setPopularFoods(res.data)).catch(() => {});
+    axiosClient.get("/admin/stats").then((res) => setStats(res.data));
+    axiosClient.get("/orders/").then((res) => setRecent(res.data.slice(0, 5)));
+    axiosClient.get("/admin/popular-foods?limit=4").then((res) => setPopular(res.data));
   }, []);
 
-  if (error) return <div className="p-8 text-red-500">{error}</div>;
-  if (!stats) return <div className="p-8">Loading...</div>;
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+    <AdminLayout title="Dashboard" subtitle="Manage your restaurant, foods, orders and customers.">
+      {!stats ? <p className="text-charcoal/40">Loading...</p> : (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <StatCard icon="🍴" iconBg="bg-basil/15" label="Foods" value={stats.total_foods} />
+            <StatCard icon="🛒" iconBg="bg-tomato/15" label="Orders" value={stats.total_orders} />
+            <StatCard icon="⏱️" iconBg="bg-amber/20" label="Pending" value={stats.pending_orders} />
+            <StatCard icon="📈" iconBg="bg-ocean/15" label="Delivered revenue" value={`Rs. ${stats.total_revenue}`} />
+          </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Total Foods" value={stats.total_foods} />
-        <StatCard label="Total Categories" value={stats.total_categories} />
-        <StatCard label="Total Customers" value={stats.total_customers} />
-        <StatCard label="Total Orders" value={stats.total_orders} />
-        <StatCard label="Total Revenue" value={`Rs. ${stats.total_revenue}`} color="text-green-600" />
-        <StatCard label="Pending Orders" value={stats.pending_orders} color="text-yellow-600" />
-        <StatCard label="Delivered Orders" value={stats.delivered_orders} color="text-blue-600" />
-      </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 bg-white rounded-2xl p-5">
+              <h2 className="font-display font-semibold mb-4">Recent Orders</h2>
+              <table className="w-full text-sm">
+                <thead className="text-charcoal/40 text-left">
+                  <tr><th className="pb-2">#</th><th className="pb-2">Total</th><th className="pb-2">Status</th></tr>
+                </thead>
+                <tbody>
+                  {recent.map((o) => (
+                    <tr key={o.id} className="border-t border-charcoal/5">
+                      <td className="py-2">{String(o.id).padStart(4, "0")}</td>
+                      <td className="py-2">Rs. {o.total_amount}</td>
+                      <td className="py-2"><span className={`text-xs px-2.5 py-1 rounded-full ${statusStyles[o.status]}`}>{o.status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-      <h2 className="text-xl font-bold mb-4">Popular Foods</h2>
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-100 text-left">
-            <tr><th className="p-3">Rank</th><th className="p-3">Food</th><th className="p-3">Total Ordered</th></tr>
-          </thead>
-          <tbody>
-            {popularFoods.map((food, i) => (
-              <tr key={food.food_id} className="border-t">
-                <td className="p-3">#{i + 1}</td>
-                <td className="p-3">{food.food_name}</td>
-                <td className="p-3">{food.total_quantity_ordered}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {popularFoods.length === 0 && <p className="p-4 text-gray-400 text-center">No orders yet.</p>}
-      </div>
-    </div>
+            <div className="bg-white rounded-2xl p-5">
+              <h2 className="font-display font-semibold mb-4">Popular Foods</h2>
+              <div className="space-y-3">
+                {popular.map((f) => (
+                  <div key={f.food_id} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-cream-dark flex items-center justify-center text-lg">🍽️</div>
+                    <div>
+                      <p className="text-sm font-medium">{f.food_name}</p>
+                      <p className="text-xs text-charcoal/40">{f.total_quantity_ordered} orders</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </AdminLayout>
   );
 }
-
 export default AdminDashboard;

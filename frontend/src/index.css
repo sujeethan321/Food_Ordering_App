@@ -1,1 +1,44 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+@theme {
+  --color-cream: #FBF3E7;
+  --color-cream-dark: #F3E6D4;
+  --color-charcoal: #2B2420;
+  --color-tomato: #E8622E;
+  --color-tomato-dark: #CF4F1F;
+  --color-basil: #3FA34D;
+  --color-basil-dark: #2F7D3B;
+  --color-amber: #F2A93B;
+  --color-blush: #F6B8A6;
+  --color-navy: #16181F;
+  --color-navy-light: #22252F;
+  --color-ocean: #2E93A6;
+
+  --font-display: "Fraunces", serif;
+  --font-body: "Inter", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background-color: var(--color-tomato);
+  color: white;
+}
+
+.chip-scroll::-webkit-scrollbar {
+  height: 0px;
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--color-tomato);
+  outline-offset: 2px;
+}

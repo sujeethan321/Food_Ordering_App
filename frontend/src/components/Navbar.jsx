@@ -2,6 +2,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
+function ChefHatIcon({ className }) {
+  return (
+    <svg className={className} width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <path d="M7 10.5a3.5 3.5 0 0 1 1-6.7A3.5 3.5 0 0 1 12 2a3.5 3.5 0 0 1 4 1.8 3.5 3.5 0 0 1 1 6.7v2.5H7v-2.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+      <path d="M6.5 15.5h11V20a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-4.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
 function Navbar() {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { itemCount } = useCart();
@@ -12,53 +21,55 @@ function Navbar() {
     navigate("/");
   };
 
+  if (isAdmin) return null; // admin uses the sidebar layout instead
+
   return (
-    <nav className="bg-white shadow px-6 py-4 flex justify-between items-center">
-      <Link to="/" className="text-xl font-bold text-orange-600">FoodHub</Link>
+    <nav className="bg-cream px-6 py-5 flex justify-between items-center max-w-7xl mx-auto">
+      <Link to="/" className="flex items-center gap-2 text-tomato">
+        <ChefHatIcon />
+        <span className="font-display font-semibold text-xl text-charcoal">Food Ordering</span>
+      </Link>
 
-      <div className="flex items-center gap-6 text-sm font-medium">
-        <Link to="/menu" className="text-gray-700 hover:text-orange-600">Menu</Link>
+      <div className="hidden md:flex items-center gap-8 text-sm font-medium text-charcoal/70">
+        <Link to="/" className="hover:text-tomato">Home</Link>
+        <Link to="/menu" className="hover:text-tomato">Menu</Link>
+        {isAuthenticated && <Link to="/my-orders" className="hover:text-tomato">My Orders</Link>}
+      </div>
 
-        {!isAdmin && (
-          <Link to="/cart" className="text-gray-700 hover:text-orange-600 relative">
-            Cart
-            {itemCount > 0 && (
-              <span className="absolute -top-2 -right-3 bg-orange-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {itemCount}
-              </span>
-            )}
-          </Link>
-        )}
+      <div className="flex items-center gap-4">
+        <Link to="/cart" className="relative">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-charcoal">
+            <path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 7H6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="9" cy="20" r="1.3" fill="currentColor"/>
+            <circle cx="17" cy="20" r="1.3" fill="currentColor"/>
+          </svg>
+          {itemCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-tomato text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {itemCount}
+            </span>
+          )}
+        </Link>
 
-        {isAuthenticated && !isAdmin && (
-          <Link to="/my-orders" className="text-gray-700 hover:text-orange-600">My Orders</Link>
-        )}
-
-        {isAdmin && (
-          <>
-            <Link to="/admin" className="text-gray-700 hover:text-orange-600">Dashboard</Link>
-            <Link to="/admin/foods" className="text-gray-700 hover:text-orange-600">Foods</Link>
-            <Link to="/admin/categories" className="text-gray-700 hover:text-orange-600">Categories</Link>
-            <Link to="/admin/orders" className="text-gray-700 hover:text-orange-600">Orders</Link>
-            <Link to="/admin/customers" className="text-gray-700 hover:text-orange-600">Customers</Link>
-          </>
-        )}
-
-        {!isAuthenticated && (
-          <>
-            <Link to="/login" className="text-gray-700 hover:text-orange-600">Login</Link>
-            <Link to="/register" className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700">Register</Link>
-          </>
-        )}
-
-        {isAuthenticated && (
+        {isAuthenticated ? (
           <div className="flex items-center gap-3">
-            <span className="text-gray-500">Hi, {user?.name?.split(" ")[0]}</span>
-            <button onClick={handleLogout} className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Logout</button>
+            <Link to="/profile" className="w-9 h-9 rounded-full bg-tomato/15 border border-tomato/30 flex items-center justify-center text-tomato-dark font-display font-semibold text-sm">
+              {user?.name?.[0]?.toUpperCase()}
+            </Link>
+            <button onClick={handleLogout} className="text-sm font-medium text-charcoal/50 hover:text-charcoal">
+              Logout
+            </button>
           </div>
+        ) : (
+          <>
+            <Link to="/login" className="text-sm font-medium text-charcoal/70 hover:text-charcoal">Login</Link>
+            <Link to="/register" className="bg-tomato hover:bg-tomato-dark text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors">
+              Sign Up
+            </Link>
+          </>
         )}
       </div>
     </nav>
   );
 }
+
 export default Navbar;
