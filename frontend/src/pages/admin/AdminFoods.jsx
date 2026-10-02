@@ -57,10 +57,23 @@ function AdminFoods() {
           <form onSubmit={handleSubmit} className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <input name="name" placeholder="Name" value={form.name} onChange={handleChange} className={inputClass} required />
             <input name="price" type="number" step="0.01" placeholder="Price" value={form.price} onChange={handleChange} className={inputClass} required />
-            <select name="category_id" value={form.category_id} onChange={handleChange} className={inputClass} required>
-              <option value="">Select Category</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
+            <div className="group relative flex items-center min-w-0 text-tomato-dark">
+              <span aria-hidden="true" className="pointer-events-none absolute left-3 size-1.5 rounded-full bg-current" />
+              <select
+                aria-label="Food category"
+                name="category_id"
+                value={form.category_id}
+                onChange={handleChange}
+                className="order-status-select appearance-none w-full min-w-0 border border-charcoal/15 hover:border-tomato/50 bg-transparent rounded-xl pl-7 pr-10 py-2.5 text-sm font-semibold tracking-wide cursor-pointer transition-[border-color,box-shadow,opacity] duration-200 ease-out hover:shadow-sm focus-visible:ring-2 focus-visible:ring-tomato focus-visible:ring-offset-2 motion-reduce:transition-none"
+                required
+              >
+                <option value="" disabled className="bg-white text-charcoal">Select Category</option>
+                {categories.map((c) => <option key={c.id} value={c.id} className="bg-white text-charcoal">{c.name}</option>)}
+              </select>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="pointer-events-none absolute right-3 size-4 opacity-50 transition-[transform,opacity] duration-200 group-hover:translate-y-0.5 group-hover:opacity-100 group-focus-within:rotate-180 group-focus-within:opacity-100 motion-reduce:transition-none">
+                <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
             <input name="description" placeholder="Description" value={form.description} onChange={handleChange} className={`${inputClass} col-span-2`} />
             <input name="image" placeholder="Image URL" value={form.image} onChange={handleChange} className={inputClass} />
             <label className="flex items-center gap-2 col-span-2 md:col-span-3 text-sm">

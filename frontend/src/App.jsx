@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -19,11 +20,18 @@ import AdminCustomers from "./pages/admin/AdminCustomers";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 
-function App() {
+function CustomerLayout() {
+  const { isAdmin } = useAuth();
+  if (isAdmin) return <Navigate to="/admin" replace />;
+  return <><Navbar /><Outlet /></>;
+}
+
+function AppRoutes() {
+  const { loading } = useAuth();
+  if (loading) return <div role="status" className="p-8">Loading...</div>;
   return (
-    <BrowserRouter>
-      <Navbar />
       <Routes>
+        <Route element={<CustomerLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -34,6 +42,8 @@ function App() {
         <Route path="/my-orders" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
         <Route path="/my-orders/:id" element={<ProtectedRoute><OrderDetails /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="*" element={<NotFound />} />
+        </Route>
 
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
         <Route path="/admin/foods" element={<AdminRoute><AdminFoods /></AdminRoute>} />
@@ -41,9 +51,11 @@ function App() {
         <Route path="/admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
         <Route path="/admin/customers" element={<AdminRoute><AdminCustomers /></AdminRoute>} />
 
-        <Route path="*" element={<NotFound />} />
       </Routes>
-    </BrowserRouter>
   );
+}
+
+function App() {
+  return <BrowserRouter><AppRoutes /></BrowserRouter>;
 }
 export default App;
