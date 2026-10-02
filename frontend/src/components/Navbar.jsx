@@ -31,7 +31,7 @@ function Navbar() {
         <span className="font-display font-semibold text-xl text-charcoal">Food Ordering</span>
       </Link>
 
-      <div className="flex order-last w-full md:order-none md:w-auto items-center gap-8 text-sm font-medium text-charcoal/70">
+      <div className="flex order-last w-full md:order-0 md:w-auto items-center gap-8 text-sm font-medium text-charcoal/70">
         <Link to="/" className="hover:text-tomato">Home</Link>
         <Link to="/menu" className="hover:text-tomato">Menu</Link>
         {isAdmin && <Link to="/admin" className="hover:text-tomato">Dashboard</Link>}
