@@ -10,7 +10,7 @@ app = FastAPI(title="Food Ordering API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173",
-                    "https://your-project.vercel.app",],
+                   "https://food-ordering-app-liart-pi.vercel.app",],
                
     
     
