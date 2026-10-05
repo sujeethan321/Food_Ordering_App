@@ -19,7 +19,7 @@ function AdminSidebar() {
   const navigate = useNavigate();
 
   return (
-    <aside className="w-60 bg-navy text-white/80 min-h-screen flex flex-col p-5 shrink-0">
+    <aside className="admin-sidebar">
       <div className="flex items-center gap-2 text-tomato mb-10 px-2">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
           <path d="M7 10.5a3.5 3.5 0 0 1 1-6.7A3.5 3.5 0 0 1 12 2a3.5 3.5 0 0 1 4 1.8 3.5 3.5 0 0 1 1 6.7v2.5H7v-2.5Z" stroke="currentColor" strokeWidth="1.6"/>
@@ -27,13 +27,14 @@ function AdminSidebar() {
         <span className="font-display font-semibold text-white text-base leading-tight">Food<br/>Ordering</span>
       </div>
 
-      <nav className="flex flex-col gap-1 flex-1">
+      <nav aria-label="Admin navigation" className="flex flex-col gap-1 flex-1">
         {navItems.map((item) => {
           const active = location.pathname === item.to;
           return (
             <Link
               key={item.to}
               to={item.to}
+              aria-current={active ? "page" : undefined}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                 active ? "bg-tomato text-white" : "hover:bg-white/5 text-white/70"
               }`}

@@ -11,8 +11,9 @@ function AdminCategories() {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const loadCategories = () => axiosClient.get("/categories/").then((res) => setCategories(res.data));
+  const loadCategories = () => axiosClient.get("/categories/").then((res) => setCategories(res.data)).catch(() => setError("Could not load categories. Please try again.")).finally(() => setLoading(false));
   useEffect(() => { loadCategories(); }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -40,13 +41,13 @@ function AdminCategories() {
       <div className="flex justify-end mb-5">
         <button onClick={openAddForm} className="bg-tomato hover:bg-tomato-dark text-white font-semibold px-5 py-2.5 rounded-full">+ Add Category</button>
       </div>
-      {error && <p className="text-tomato-dark mb-4">{error}</p>}
+      {error && <p role="alert" className="text-tomato-dark mb-4">{error}</p>}
 
       {showForm && (
         <div className="bg-white rounded-2xl p-6 mb-6">
           <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-            <input name="name" placeholder="Name" value={form.name} onChange={handleChange} className={inputClass} required />
-            <input name="description" placeholder="Description" value={form.description} onChange={handleChange} className={inputClass} />
+            <input name="name" aria-label="Name" placeholder="Name" value={form.name} onChange={handleChange} className={inputClass} required />
+            <input name="description" aria-label="Description" placeholder="Description" value={form.description} onChange={handleChange} className={inputClass} />
             <div className="col-span-2 flex gap-3">
               <button type="submit" className="bg-basil hover:bg-basil-dark text-white px-5 py-2.5 rounded-full font-semibold">{editingId ? "Update" : "Create"}</button>
               <button type="button" onClick={() => setShowForm(false)} className="border border-charcoal/15 px-5 py-2.5 rounded-full font-medium">Cancel</button>
@@ -55,6 +56,7 @@ function AdminCategories() {
         </div>
       )}
 
+      {loading && <p role="status" className="mb-4">Loading categories...</p>}
       <div className="bg-white rounded-2xl overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-left text-charcoal/40 border-b border-charcoal/8">

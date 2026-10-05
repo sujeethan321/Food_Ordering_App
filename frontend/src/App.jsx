@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -23,7 +24,7 @@ import AdminRoute from "./components/AdminRoute";
 function CustomerLayout() {
   const { isAdmin } = useAuth();
   if (isAdmin) return <Navigate to="/admin" replace />;
-  return <><Navbar /><Outlet /></>;
+  return <><a href="#main-content" className="skip-link">Skip to content</a><Navbar /><main id="main-content" className="customer-main"><Outlet /></main><Footer /></>;
 }
 
 function AppRoutes() {

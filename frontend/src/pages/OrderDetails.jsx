@@ -14,8 +14,10 @@ const statusStyles = {
 function OrderDetails() {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
-  useEffect(() => { getOrderById(id).then((res) => setOrder(res.data)); }, [id]);
+  const [error, setError] = useState(false);
+  useEffect(() => { getOrderById(id).then((res) => setOrder(res.data)).catch(() => setError(true)); }, [id]);
 
+  if (error) return <div className="page-width empty-panel" role="alert"><h1>We could not load this order.</h1><p>Please try again, or check your order history.</p><button className="primary-button" onClick={() => window.location.reload()}>Try again</button><Link className="block mt-4" to="/my-orders">Back to my orders</Link></div>;
   if (!order) return <div className="min-h-screen bg-cream flex items-center justify-center text-charcoal/50">Loading...</div>;
 
   return (

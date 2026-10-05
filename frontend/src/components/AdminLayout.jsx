@@ -5,9 +5,9 @@ function AdminLayout({ title, subtitle, children }) {
   const { user } = useAuth();
 
   return (
-    <div className="flex min-h-screen bg-cream-dark">
+    <div className="admin-shell">
       <AdminSidebar />
-      <div className="flex-1">
+      <div className="admin-workspace">
         <header className="flex justify-between items-center px-8 py-6">
           <div>
             <h1 className="font-display text-2xl font-semibold">{title}</h1>

@@ -36,14 +36,14 @@ function Cart() {
                 <h3 className="font-semibold">{item.name}</h3>
                 <p className="text-tomato font-medium text-sm">Rs. {item.price}</p>
                 <div className="flex items-center gap-2 bg-cream-dark rounded-full px-2 py-1 mt-2 w-fit">
-                  <button onClick={() => decreaseQuantity(item.food_id)} className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-tomato">−</button>
+                  <button aria-label={`Remove one ${item.name}`} onClick={() => decreaseQuantity(item.food_id)} className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-tomato">−</button>
                   <span className="text-sm font-semibold w-4 text-center">{item.quantity}</span>
-                  <button onClick={() => increaseQuantity(item.food_id)} className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-tomato">+</button>
+                  <button aria-label={`Add one ${item.name}`} onClick={() => increaseQuantity(item.food_id)} className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-tomato">+</button>
                 </div>
               </div>
               <div className="text-right">
                 <p className="font-display font-semibold text-tomato">Rs. {subtotal(item).toFixed(2)}</p>
-                <button onClick={() => removeFromCart(item.food_id)} className="text-charcoal/30 hover:text-clay text-xs mt-2">Remove</button>
+                <button onClick={() => removeFromCart(item.food_id)} className="text-charcoal/30 hover:text-tomato-dark text-xs mt-2">Remove</button>
               </div>
             </div>
           ))}
@@ -51,7 +51,7 @@ function Cart() {
 
         <div className="bg-white rounded-2xl p-5 mt-6">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-charcoal/60">Total</span>
+            <span className="text-charcoal/60">Order total</span>
             <span className="font-display text-2xl font-semibold text-tomato">Rs. {total.toFixed(2)}</span>
           </div>
           <button onClick={handleCheckout} className="w-full flex items-center justify-center gap-2 bg-tomato hover:bg-tomato-dark text-white font-semibold py-3.5 rounded-full transition-colors">

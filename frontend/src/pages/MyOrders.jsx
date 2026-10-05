@@ -13,14 +13,17 @@ const statusStyles = {
 
 function MyOrders() {
   const [orders, setOrders] = useState([]);
-  useEffect(() => { getMyOrders().then((res) => setOrders(res.data)); }, []);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  useEffect(() => { getMyOrders().then((res) => setOrders(res.data)).catch(() => setError(true)).finally(() => setLoading(false)); }, []);
 
   return (
     <div className="min-h-screen bg-cream px-6 py-10 flex justify-center">
       <div className="w-full max-w-2xl">
         <h1 className="font-display text-3xl font-semibold mb-6">My Orders</h1>
 
-        {orders.length === 0 && <p className="text-charcoal/50">You haven't placed any orders yet. <Link to="/menu" className="text-tomato">Browse the menu</Link></p>}
+        {loading && <p role="status">Loading your orders...</p>}{error && <p role="alert">Your orders could not load. <button className="text-tomato underline" onClick={() => window.location.reload()}>Try again</button></p>}
+        {!loading && !error && orders.length === 0 && <p className="text-charcoal/50">You haven't placed any orders yet. <Link to="/menu" className="text-tomato">Browse the menu</Link></p>}
 
         <div className="space-y-3">
           {orders.map((order) => (

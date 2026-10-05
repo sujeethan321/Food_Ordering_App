@@ -1,27 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axiosClient from "../api/axiosClient";
 import { useAuth } from "../context/AuthContext";
 
 function Profile() {
   const { user } = useAuth();
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [name, setName] = useState(user?.name || "");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [address, setAddress] = useState(user?.address || "");
   const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (user) { setName(user.name); setPhone(user.phone || ""); setAddress(user.address || ""); }
-  }, [user]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     setMessage("");
     try {
       await axiosClient.put("/auth/me", { name, phone, address });
       setMessage("Profile updated successfully");
     } catch (err) {
       setMessage(err.response?.data?.detail || "Update failed");
-    }
+    } finally { setSubmitting(false); }
   };
 
   if (!user) return null;
@@ -40,14 +41,14 @@ function Profile() {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6">
-          {message && <p className="text-sm text-basil-dark mb-4">{message}</p>}
-          <label className="block mb-1.5 text-sm font-medium">Name</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-charcoal/15 rounded-xl px-4 py-2.5 mb-3 outline-none focus:border-tomato" />
-          <label className="block mb-1.5 text-sm font-medium">Phone</label>
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full border border-charcoal/15 rounded-xl px-4 py-2.5 mb-3 outline-none focus:border-tomato" />
-          <label className="block mb-1.5 text-sm font-medium">Address</label>
-          <input value={address} onChange={(e) => setAddress(e.target.value)} className="w-full border border-charcoal/15 rounded-xl px-4 py-2.5 mb-6 outline-none focus:border-tomato" />
-          <button type="submit" className="w-full bg-tomato hover:bg-tomato-dark text-white font-semibold py-3 rounded-full">Save changes</button>
+          {message && <p role="status" className="text-sm text-basil-dark mb-4">{message}</p>}
+          <label htmlFor="name" className="block mb-1.5 text-sm font-medium">Name</label>
+          <input id="name" name="name" aria-label="Name" value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-charcoal/15 rounded-xl px-4 py-2.5 mb-3 outline-none focus:border-tomato" />
+          <label htmlFor="phone" className="block mb-1.5 text-sm font-medium">Phone</label>
+          <input id="phone" name="phone" aria-label="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full border border-charcoal/15 rounded-xl px-4 py-2.5 mb-3 outline-none focus:border-tomato" />
+          <label htmlFor="address" className="block mb-1.5 text-sm font-medium">Address</label>
+          <input id="address" name="address" aria-label="Address" value={address} onChange={(e) => setAddress(e.target.value)} className="w-full border border-charcoal/15 rounded-xl px-4 py-2.5 mb-6 outline-none focus:border-tomato" />
+          <button disabled={submitting} aria-busy={submitting} type="submit" className="w-full bg-tomato hover:bg-tomato-dark text-white font-semibold py-3 rounded-full">{submitting ? "Please wait..." : "Save changes"}</button>
         </form>
       </div>
     </div>

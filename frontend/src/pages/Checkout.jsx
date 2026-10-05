@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { placeOrder } from "../api/orders";
@@ -12,6 +12,7 @@ function Checkout() {
   const [submitting, setSubmitting] = useState(false);
 
   const handlePlaceOrder = async () => {
+    if (submitting) return;
     setError("");
     setSubmitting(true);
     try {
@@ -27,16 +28,16 @@ function Checkout() {
   };
 
   if (items.length === 0) {
-    return <div className="min-h-screen bg-cream flex items-center justify-center text-charcoal/50">Your cart is empty — nothing to check out.</div>;
+    return <div className="min-h-screen bg-cream flex items-center justify-center text-charcoal/50"><div className="empty-panel"><h1>Your cart is empty</h1><p>Find something delicious before checking out.</p><Link className="primary-button" to="/menu">Explore menu</Link></div></div>;
   }
 
   return (
     <div className="min-h-screen bg-cream flex justify-center px-6 py-10">
       <div className="bg-white rounded-3xl p-8 w-full max-w-lg">
-        <h1 className="font-display text-2xl font-semibold mb-6">Checkout</h1>
+        <p className="eyebrow">One last look</p><h1 className="font-display text-2xl font-semibold mb-3">Ready when you are.</h1><p className="text-sm text-charcoal/60 mb-6">Review your details and your order below.</p>
 
         <div className="bg-cream-dark rounded-2xl p-4 mb-6">
-          <h2 className="font-semibold text-sm mb-2">Delivery details</h2>
+          <div className="flex justify-between mb-3"><h2 className="font-semibold text-sm">Delivery details</h2><Link to="/profile" className="text-tomato text-sm underline">Edit profile</Link></div>
           <p className="text-sm text-charcoal/60">{user?.name}</p>
           <p className="text-sm text-charcoal/60">{user?.phone}</p>
           <p className="text-sm text-charcoal/60">{user?.address || "No address on file"}</p>
@@ -51,7 +52,7 @@ function Checkout() {
           ))}
         </div>
 
-        {error && <div className="bg-blush/30 text-tomato-dark text-sm rounded-xl px-4 py-3 mb-4">{error}</div>}
+        {error && <div role="alert" className="bg-blush/30 text-tomato-dark text-sm rounded-xl px-4 py-3 mb-4">{error}</div>}
 
         <div className="flex justify-between items-center border-t pt-4 mb-6">
           <span className="font-semibold">Total</span>

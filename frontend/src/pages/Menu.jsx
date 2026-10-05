@@ -1,134 +1,15 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { getFoods } from "../api/foods";
 import { getCategories } from "../api/categories";
-import { useCart } from "../context/CartContext";
-
-function Menu() {
-  const [foods, setFoods] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({ total_pages: 1, page: 1 });
-  const { items, addToCart, increaseQuantity, decreaseQuantity } = useCart();
-
-  const [filters, setFilters] = useState({ search: "", category_id: "", sort: "", order: "asc", page: 1, limit: 9 });
-
-  useEffect(() => { getCategories().then((res) => setCategories(res.data)); }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    getFoods(filters).then((res) => {
-      setFoods(res.data.items);
-      setPagination({ total_pages: res.data.total_pages, page: res.data.page });
-    }).finally(() => setLoading(false));
-  }, [filters]);
-
-  const cartQty = (foodId) => items.find((i) => i.food_id === foodId)?.quantity || 0;
-
-  return (
-    <div className="min-h-screen bg-cream">
-      <div className="max-w-7xl mx-auto px-6 pb-16">
-        <h1 className="font-display text-3xl font-semibold mb-6">Our Menu</h1>
-
-        <div className="flex flex-col sm:flex-row gap-3 mb-5">
-          <div className="relative flex-1">
-            <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-charcoal/30" width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2"/><path d="M21 21l-4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            <input
-              placeholder="Search for your favourite food..."
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value, page: 1 })}
-              className="w-full bg-white border border-charcoal/10 rounded-full pl-11 pr-4 py-3 outline-none focus:border-tomato/40 transition-colors"
-            />
-          </div>
-          <select value={filters.sort} onChange={(e) => setFilters({ ...filters, sort: e.target.value, page: 1 })} className="border border-charcoal/10 bg-white rounded-full px-4 py-3 text-sm">
-            <option value="">Sort by</option>
-            <option value="price">Price</option>
-            <option value="name">Name</option>
-          </select>
-          <select value={filters.order} onChange={(e) => setFilters({ ...filters, order: e.target.value, page: 1 })} className="border border-charcoal/10 bg-white rounded-full px-4 py-3 text-sm">
-            <option value="asc">Low to high / A-Z</option>
-            <option value="desc">High to low / Z-A</option>
-          </select>
-        </div>
-
-        <div className="flex gap-2 overflow-x-auto chip-scroll mb-8 pb-1">
-          <button
-            onClick={() => setFilters({ ...filters, category_id: "", page: 1 })}
-            className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${filters.category_id === "" ? "bg-tomato text-white border-tomato" : "bg-white border-charcoal/10 hover:border-tomato/40"}`}
-          >
-            All
-          </button>
-          {categories.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setFilters({ ...filters, category_id: String(c.id), page: 1 })}
-              className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${filters.category_id === String(c.id) ? "bg-tomato text-white border-tomato" : "bg-white border-charcoal/10 hover:border-tomato/40"}`}
-            >
-              {c.name}
-            </button>
-          ))}
-        </div>
-
-        {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => <div key={i} className="h-64 bg-cream-dark rounded-3xl animate-pulse"></div>)}
-          </div>
-        )}
-
-        {!loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {foods.map((food) => {
-              const qty = cartQty(food.id);
-              return (
-                <div key={food.id} className="bg-white rounded-3xl p-3 border border-charcoal/8">
-                  <div className="h-40 rounded-2xl overflow-hidden bg-cream-dark mb-3">
-                    {food.image ? (
-                      <img src={food.image} alt={food.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-5xl">🍽️</div>
-                    )}
-                  </div>
-                  <div className="px-2 pb-1">
-                    <h3 className="font-semibold mb-2">{food.name}</h3>
-                    <div className="flex justify-between items-center">
-                      <span className="font-display text-lg font-semibold text-tomato">Rs. {food.price}</span>
-                      {!food.is_available ? (
-                        <span className="text-xs text-charcoal/40 font-medium">Unavailable</span>
-                      ) : qty > 0 ? (
-                        <div className="flex items-center gap-2 bg-cream-dark rounded-full px-2 py-1">
-                          <button onClick={() => decreaseQuantity(food.id)} className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-tomato">−</button>
-                          <span className="text-sm font-semibold w-4 text-center">{qty}</span>
-                          <button onClick={() => increaseQuantity(food.id)} className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-tomato">+</button>
-                        </div>
-                      ) : (
-                        <button onClick={() => addToCart(food)} className="flex items-center gap-1.5 bg-tomato hover:bg-tomato-dark text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                          Add
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {!loading && foods.length === 0 && <p className="text-center text-charcoal/40 py-10">No food items match your search.</p>}
-
-        {pagination.total_pages > 1 && (
-          <div className="flex justify-center gap-2 mt-10">
-            {Array.from({ length: pagination.total_pages }, (_, i) => i + 1).map((p) => (
-              <button key={p} onClick={() => setFilters({ ...filters, page: p })}
-                className={`w-9 h-9 rounded-full text-sm font-medium ${p === pagination.page ? "bg-tomato text-white" : "bg-white border border-charcoal/10"}`}>
-                {p}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+import FoodCard from "../components/FoodCard";
+export default function Menu() {
+ const [params, setParams] = useSearchParams();
+ const [foods,setFoods]=useState([]), [categories,setCategories]=useState([]), [loading,setLoading]=useState(true), [error,setError]=useState(''), [pagination,setPagination]=useState({total_pages:1,total:0}), [attempt,setAttempt]=useState(0);
+ const search=params.get('search')||'', category=params.get('category_id')||'', sort=params.get('sort')||'', order=params.get('order')||'asc', page=Number(params.get('page'))||1;
+ const update=(values)=>setParams(previous=>{const next=new URLSearchParams(previous);Object.entries({...values,page:values.page||1}).forEach(([k,v])=>v?next.set(k,String(v)):next.delete(k));return next;});
+ useEffect(()=>{let active=true;getCategories().then(r=>{if(active)setCategories(r.data);}).catch(()=>{if(active)setError('Category filters could not load. You can still search the menu.');});return()=>{active=false;};},[attempt]);
+ useEffect(()=>{let active=true;getFoods({search,category_id:category,sort,order,page,limit:9}).then(r=>{if(active){setFoods(r.data.items);setPagination(r.data);}}).catch(()=>{if(active){setFoods([]);setError('We could not load the menu. Please try again.');}}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[search,category,sort,order,page,attempt]);
+ const change=(v)=>{if(Object.entries(v).every(([k,value]) => String(value) === (params.get(k) || (k === 'page' ? '1' : '')))) return; setLoading(true);setError('');update(v);};
+ return <div className="page-width menu-page"><header className="page-heading"><p className="eyebrow">Something for every craving</p><h1>The good mood menu.</h1><p>Find your favorites. Discover something delicious.</p></header><div className="menu-tools"><label className="search-field"><span aria-hidden="true">&#8981;</span><span className="sr-only">Search food</span><input placeholder="What are you craving?" value={search} onChange={e=>change({search:e.target.value})}/></label><label><span className="sr-only">Sort dishes</span><select value={sort} onChange={e=>change({sort:e.target.value})}><option value="">Sort by</option><option value="price">Price</option><option value="name">Name</option></select></label><label><span className="sr-only">Sort direction</span><select value={order} onChange={e=>change({order:e.target.value})}><option value="asc">Low to high / A–Z</option><option value="desc">High to low / Z–A</option></select></label></div><div className="filter-chips" aria-label="Food categories">{[{id:'',name:'All dishes'},...categories].map(c=><button key={c.id} aria-pressed={category===String(c.id)} className={category===String(c.id)?'active':''} onClick={()=>change({category_id:c.id})}>{c.name}</button>)}</div>{error && <div role="alert" className="empty-panel"><p>{error}</p><button className="primary-button" onClick={()=>{setLoading(true);setError('');setAttempt(a=>a+1);}}>Try again</button></div>}{loading ? <div role="status" className="food-grid">{[0,1,2,3,4,5].map(i=><div key={i} className="food-skeleton"/>)}<span className="sr-only">Loading dishes</span></div> : !error && <><p className="results-count" aria-live="polite">{pagination.total ?? foods.length} dishes to explore</p><div className="food-grid">{foods.map(f=><FoodCard key={f.id} food={f}/>)}</div>{foods.length===0 && <div className="empty-panel"><h2>No dishes found</h2><p>Try another craving or clear your filters.</p><button className="primary-button" onClick={()=>{if(params.size) {setLoading(true);setParams({});}}}>Clear filters</button></div>}</>}{!loading && !error && pagination.total_pages>1 && <nav className="pagination" aria-label="Menu pages"><button disabled={page<=1} onClick={()=>change({page:page-1})}>&#8592; Previous</button><span>Page {page} of {pagination.total_pages}</span><button disabled={page>=pagination.total_pages} onClick={()=>change({page:page+1})}>Next &#8594;</button></nav>}</div>;
 }
-export default Menu;

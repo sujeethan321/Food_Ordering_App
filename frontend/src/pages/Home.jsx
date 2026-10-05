@@ -1,93 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getFoods } from "../api/foods";
-import { useCart } from "../context/CartContext";
-
-const categoryPills = [
-  { label: "All", icon: "🍽️" },
-  { label: "Pizza", icon: "🍕" },
-  { label: "Burger", icon: "🍔" },
-  { label: "Rice", icon: "🍚" },
-  { label: "Drinks", icon: "🥤" },
-  { label: "Desserts", icon: "🍰" },
-];
-
-function Home() {
-  const [foods, setFoods] = useState([]);
-  const { addToCart } = useCart();
-
-  useEffect(() => {
-    getFoods({ limit: 3, is_available: true }).then((res) => setFoods(res.data.items));
-  }, []);
-
-  return (
-    <div className="bg-cream">
-      <section className="max-w-7xl mx-auto px-6 pt-8 pb-10 grid md:grid-cols-2 gap-10 items-center">
-        <div>
-          <p className="text-basil-dark font-semibold text-xs tracking-widest uppercase mb-4">Sri Lankan Restaurant</p>
-          <h1 className="font-display text-6xl font-semibold leading-[1.05] mb-5">
-            Good food.<br/>Great mood.
-          </h1>
-          <p className="text-charcoal/60 text-lg mb-2">Your next favourite meal is a few clicks away.</p>
-          <div className="w-16 h-1 bg-basil rounded-full mb-7"></div>
-          <Link to="/menu" className="inline-flex items-center gap-2 bg-tomato hover:bg-tomato-dark text-white font-semibold px-7 py-3.5 rounded-full transition-colors">
-            Explore menu
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          </Link>
-        </div>
-
-        <div className="relative bg-cream-dark rounded-[2.5rem] aspect-square flex items-center justify-center text-[10rem] overflow-hidden">
-          🍕
-          <span className="absolute top-8 left-10 text-2xl -rotate-12">🍅</span>
-          <span className="absolute bottom-10 right-10 text-2xl rotate-10">🌿</span>
-          <span className="absolute top-12 right-14 text-xl rotate-8">🌶️</span>
-        </div>
-      </section>
-
-      <section className="max-w-7xl mx-auto px-6 pb-6">
-        <div className="flex gap-2 overflow-x-auto chip-scroll pb-1">
-          {categoryPills.map((c) => (
-            <Link
-              key={c.label}
-              to={c.label === "All" ? "/menu" : `/menu?category=${c.label}`}
-              className="shrink-0 flex items-center gap-2 bg-white border border-charcoal/10 hover:border-tomato/40 rounded-full px-4 py-2 text-sm font-medium transition-colors"
-            >
-              <span>{c.icon}</span>{c.label}
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="max-w-7xl mx-auto px-6 pb-16">
-        <h2 className="font-display text-2xl font-semibold mb-5">Popular picks</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {foods.map((food) => (
-            <div key={food.id} className="bg-white rounded-3xl p-3 border border-charcoal/8">
-              <div className="h-44 rounded-2xl overflow-hidden bg-cream-dark mb-3">
-                {food.image ? (
-                  <img src={food.image} alt={food.name} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-5xl">🍽️</div>
-                )}
-              </div>
-              <div className="px-2 pb-2">
-                <h3 className="font-semibold mb-2">{food.name}</h3>
-                <div className="flex justify-between items-center">
-                  <span className="font-display text-lg font-semibold text-tomato">Rs. {food.price}</span>
-                  <button
-                    onClick={() => addToCart(food)}
-                    className="flex items-center gap-1.5 bg-tomato hover:bg-tomato-dark text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L20 7H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-                    Add
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
+import { getCategories } from "../api/categories";
+import placeholder from "../assets/food-placeholder.svg";
+import FoodCard from "../components/FoodCard";
+export default function Home() {
+ const [foods, setFoods] = useState([]), [categories, setCategories] = useState([]), [loading, setLoading] = useState(true), [error, setError] = useState(false), [attempt, setAttempt] = useState(0);
+ useEffect(() => { let active = true; Promise.all([getFoods({limit: 3, is_available: true}), getCategories()]).then(([f,c]) => { if(active){setFoods(f.data.items);setCategories(c.data);} }).catch(() => {if(active)setError(true);}).finally(() => {if(active)setLoading(false);}); return () => {active=false;}; }, [attempt]);
+ return <><section className="hero page-width"><div className="hero-copy"><p className="eyebrow">A taste of happiness</p><h1>Good food.<br />Great <em>mood.</em></h1><p className="hero-description">From comforting classics to your next favorite. Find a little joy in every bite.</p><Link className="primary-button" to="/menu">Explore menu <span>&#8599;</span></Link><div className="hero-footnote"><span className="little-star">&#10035;</span> Sri Lankan flavors. Something for everyone.</div></div><div className="hero-visual"><img src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=90" alt="An appetizing spread of colorful bowls with fresh vegetables and hearty ingredients" fetchPriority="high" onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = placeholder; e.currentTarget.alt = "A plated meal illustration"; }} /><div className="hero-stamp">GOOD FOOD<br /><span>good days</span> EVERY DAY</div><div className="hero-caption"><span>On the menu today</span><strong>Your next favorite meal.</strong></div></div></section><div className="brand-strip"><span>Big flavors</span><span aria-hidden="true">&#10035;</span><span>Everyday favorites</span><span aria-hidden="true">&#10035;</span><span>Made for good moods</span></div><section className="page-width discovery"><div className="section-heading"><div><p className="eyebrow">Follow your cravings</p><h2>What sounds good?</h2></div><Link to="/menu">View the full menu &#8599;</Link></div><div className="category-links"><Link to="/menu">All dishes <span>&#8599;</span></Link>{categories.map(c => <Link key={c.id} to={`/menu?category_id=${c.id}`}>{c.name}<span>&#8599;</span></Link>)}</div><div className="section-heading popular-heading"><div><p className="eyebrow">Find your new favorite</p><h2>Popular picks</h2></div><p>A good place to start.</p></div>{loading ? <div role="status" className="food-grid">{[0,1,2].map(i=><div key={i} className="food-skeleton" />)}<span className="sr-only">Loading menu</span></div> : error ? <div className="empty-panel" role="alert"><h3>The menu is taking a moment.</h3><p>We couldn't load the dishes. Please try again.</p><button className="primary-button" onClick={()=>{setError(false);setLoading(true);setAttempt(a=>a+1);}}>Try again</button></div> : foods.length ? <div className="food-grid">{foods.map(f=><FoodCard key={f.id} food={f}/>)}</div> : <div className="empty-panel">Fresh picks will appear here when the menu is available.</div>}</section><section className="invitation page-width"><span className="little-star">&#10035;</span><h2>Make room for<br /><em>something delicious.</em></h2><Link className="primary-button" to="/menu">Find your favorite &#8599;</Link></section></>;
 }
-export default Home;
